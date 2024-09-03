@@ -1,46 +1,40 @@
-//Arduino side code
-#include <DHT.h>
+#include "DHT.h"
 #include <SoftwareSerial.h>
-#include <ArduinoJson.h>
 
-//Initialize Arduino to NodeMCU (SoftwareSerial on Arduino)
-SoftwareSerial nodemcu(5, 6);  // 5 = Rx, 6 = Tx
+// Define the DHT sensor type and pin
+#define DHTPIN 2        // DHT22 data pin connected to digital pin 2
+#define DHTTYPE DHT22   // DHT 22 (AM2302)
 
-#define DHTPIN 4  // DHT sensor pin
-DHT dht(DHTPIN, DHT22);
-float temp;
-float hum;
+// Initialize DHT sensor and software serial communication
+DHT dht(DHTPIN, DHTTYPE);
+SoftwareSerial espSerial(5, 6); // RX, TX pins for communication with ESP8266
 
 void setup() {
-  Serial.begin(9600);  // For debugging
-  nodemcu.begin(9600); // SoftwareSerial baud rate to match ESP8266
-
+  // Begin serial communication with ESP8266
+  espSerial.begin(115200);
+  // Begin DHT sensor
   dht.begin();
-  delay(1000);
-  Serial.println("Program started");
 }
 
 void loop() {
-  StaticJsonDocument<1000> doc;
+  // Read humidity and temperature from DHT sensor
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  
+  // // Check if any reads failed and exit early (to try again)
+  // if (isnan(h) || isnan(t)) {
+  //   espSerial.println("Failed to read from DHT sensor!");
+  //   delay(2000); // Wait a while before trying again
+  //   return;
+  // }
 
-  // Read Temp and Hum data
-  dht11_func();
+  // Format the data as a single string to send to ESP8266
+  String str = "H" + String(h) + "T" + String(t);
 
-  // Assign collected data to JSON Object
-  doc["humidity"] = hum;
-  doc["temperature"] = temp;
+  // Send the formatted string to the ESP8266
+  espSerial.print(str);
+  espSerial.println();
 
-  // Serialize JSON and send data to NodeMCU
-  serializeJson(doc, nodemcu);
-  nodemcu.println();  // Ensure we send a newline character to end the transmission
-  delay(1000);
-}
-
-void dht11_func() {
-  hum = dht.readHumidity();
-  temp = dht.readTemperature();
-  Serial.print("Humidity: ");
-  Serial.println(hum);
-  Serial.print("Temperature: ");
-  Serial.println(temp);
+  // Optional: Add a delay before the next reading
+  delay(1000); // Send data every second
 }
