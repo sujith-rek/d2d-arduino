@@ -42,7 +42,7 @@ void connectToWiFi() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  sendDataToServer("Connected");
+  sendDataToServer("Connected");  // Optionally send a connection message
 }
 
 void sendDataToServer(String jsonData) {
@@ -50,18 +50,23 @@ void sendDataToServer(String jsonData) {
     WiFiClient client;
 
     // Connect to the server
-    if (client.connect(server, port)) {
+   if (client.connect(server, port)) {
       Serial.println("Connected to server.");
 
-      // Build the HTTP GET request
-      String httpRequest = "GET /data?json=" + jsonData + " HTTP/1.1\r\n";
+      // Encode the data for application/x-www-form-urlencoded
+      String postData = "data=" + jsonData;
+
+      // Build the HTTP POST request
+      String httpRequest = "POST /data HTTP/1.1\r\n";
       httpRequest += "Host: " + String(server) + "\r\n";
-      httpRequest += "Connection: close\r\n";
-      httpRequest += "\r\n";
+      httpRequest += "Content-Type: application/x-www-form-urlencoded\r\n";
+      httpRequest += "Content-Length: " + String(postData.length()) + "\r\n";
+      httpRequest += "Connection: close\r\n\r\n";
+      httpRequest += postData;  // Add the encoded data to the body
 
       // Send the entire HTTP request as a single string
       client.print(httpRequest);
-      Serial.println("Data sent to server: " + jsonData);
+      Serial.println("Data sent to server: " + postData);
 
       // Wait for server response
       while (client.connected()) {

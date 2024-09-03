@@ -1,5 +1,6 @@
 #include "DHT.h"
 #include <SoftwareSerial.h>
+#include <ArduinoJson.h> // Include the ArduinoJson library
 
 // Define the DHT sensor type and pin
 #define DHTPIN 2        // DHT22 data pin connected to digital pin 2
@@ -12,7 +13,7 @@ SoftwareSerial espSerial(5, 6); // RX, TX pins for communication with ESP8266
 void setup() {
   // Begin serial communication with ESP8266
   espSerial.begin(115200);
-  // Begin DHT sensor
+  // Initialize DHT sensor
   dht.begin();
 }
 
@@ -21,19 +22,24 @@ void loop() {
   float h = dht.readHumidity();
   float t = dht.readTemperature();
   
-  // // Check if any reads failed and exit early (to try again)
-  // if (isnan(h) || isnan(t)) {
-  //   espSerial.println("Failed to read from DHT sensor!");
-  //   delay(2000); // Wait a while before trying again
-  //   return;
-  // }
+  // Check if any reads failed and exit early (to try again)
+  if (isnan(h) || isnan(t)) {
+    espSerial.println("Failed to read from DHT sensor!");
+    delay(2000); // Wait a while before trying again
+    return;
+  }
 
-  // Format the data as a single string to send to ESP8266
-  String str = "H" + String(h) + "T" + String(t);
+  // Create a JSON object
+  StaticJsonDocument<200> doc;
+  doc["humidity"] = h;
+  doc["temperature"] = t;
 
-  // Send the formatted string to the ESP8266
-  espSerial.print(str);
-  espSerial.println();
+  // Serialize JSON to string
+  String jsonStr;
+  serializeJson(doc, jsonStr);
+
+  // Send the JSON string to the ESP8266
+  espSerial.println(jsonStr);
 
   // Optional: Add a delay before the next reading
   delay(1000); // Send data every second
