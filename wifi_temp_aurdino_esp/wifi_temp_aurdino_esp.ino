@@ -1,12 +1,12 @@
 #include <ESP8266WiFi.h>
 
 // Wi-Fi credentials
-const char* ssid = "meowmeow";
-const char* password = "Mang0e@ter12";
+const char* ssid = "";
+const char* password = "aryan0405";
 
 // Server details
-const char* server = "192.168.248.158";  // Replace with your server IP
-const int port = 8080;                   // Replace with your server port
+const char* server = "192.168.73.105";  // Replace with your server IP
+const int port = 3000;                   // Replace with your server port
 
 void setup() {
   // Initialize serial communication
