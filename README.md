@@ -7,3 +7,14 @@
 - ArduinoJson
 - DHTNEW
 - Grove_Temperature_And_Humidity_Sensor
+
+## Algos
+
+DTMC discrete time Markov chain
+Adaptive neuro-fuzzy inference system 
+Svr
+KNN
+Lr linear regression 
+Qr quantile LOGISTIC REGRESSION n
+ARIMA 
+GRA GREY RELATIONAL ANALYSIS
