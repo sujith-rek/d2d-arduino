@@ -10,11 +10,11 @@
 
 ## Algos
 
-DTMC discrete time Markov chain
-Adaptive neuro-fuzzy inference system 
-Svr
-KNN
-Lr linear regression 
-Qr quantile LOGISTIC REGRESSION n
-ARIMA 
-GRA GREY RELATIONAL ANALYSIS
+- DTMC discrete time Markov chain
+- Adaptive neuro-fuzzy inference system
+- Svr
+- KNN
+- Lr linear regression
+- Qr quantile LOGISTIC REGRESSION
+- ARIMA
+- GRA GREY RELATIONAL ANALYSIS
