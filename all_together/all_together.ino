@@ -1,5 +1,6 @@
-#include "DHT.h"
+#include <DHT.h>
 #include <ArduinoJson.h>
+#include <SoftwareSerial.h>
 
 // Define the pins for sensors
 #define DHTPIN 2
@@ -15,23 +16,28 @@ DHT dht(DHTPIN, DHTTYPE);
 // Sampling parameters for PM2.5 sensor
 unsigned long lowPulseOccupancy = 0;
 unsigned long startTime = 0;
-unsigned long sampleTimeMs = 30000; // 30 seconds
+unsigned long sampleTimeMs = 60000; // 60 seconds (1 minute)
+
+// Use SoftwareSerial for ESP8266 communication
+#include <SoftwareSerial.h>
+SoftwareSerial espSerial(5, 6); // RX, TX pins for communication with ESP8266
 
 void setup() {
-  Serial.begin(9600);  // Communication with ESP8266
-  dht.begin();         // Initialize DHT22
+  Serial.begin(9600);       // Serial monitor communication
+  espSerial.begin(115200);  // Communication baud rate with ESP8266
+  dht.begin();              // Initialize DHT22
   pinMode(PM25PIN, INPUT);
   startTime = millis();
 }
 
 void loop() {
-  // Read all sensors
+  // Variables for storing sensor data
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
   int co2 = map(analogRead(CO2PIN), 0, 1023, 0, 5000); // Adjust based on calibration
   int co = map(analogRead(COPIN), 0, 1023, 0, 1000);   // Adjust based on calibration
   
-  // Read PM2.5
+  // Read PM2.5 sensor
   unsigned long duration = pulseIn(PM25PIN, LOW);
   lowPulseOccupancy += duration;
   float pm25 = 0;
@@ -42,7 +48,7 @@ void loop() {
     startTime = millis();
   }
 
-  // Read PM10
+  // Read PM10 sensor
   float voMeasured = analogRead(PM10PIN) * (5.0 / 1024.0); // Convert to voltage
   float pm10 = 170 * voMeasured - 0.1;                    // Calibrated value
   
@@ -65,7 +71,13 @@ void loop() {
   String jsonStr;
   serializeJson(doc, jsonStr);
 
-  // Send data to ESP8266
+  // Debugging: Print JSON data to Serial Monitor
+  Serial.println("Sensor Data (JSON):");
   Serial.println(jsonStr);
-  delay(1000);  // Delay between readings
+
+  // Send data to ESP8266 every minute
+  espSerial.println(jsonStr);
+
+  // Delay 1 minute before the next reading
+  // delay(60000); // 60 seconds
 }
