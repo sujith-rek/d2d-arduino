@@ -1,21 +1,13 @@
 #include "DHT.h"
 #include <ArduinoJson.h>
 
-// Define the pins for sensors
-#define DHTPIN 2
-#define DHTTYPE DHT22
-#define CO2PIN A0
-#define COPIN A1
-#define PM10PIN A2
-#define PM25PIN 8
+// Wi-Fi credentials
+const char* ssid = "";
+const char* password = "aryan0405";
 
-// Initialize DHT sensor
-DHT dht(DHTPIN, DHTTYPE);
-
-// Sampling parameters for PM2.5 sensor
-unsigned long lowPulseOccupancy = 0;
-unsigned long startTime = 0;
-unsigned long sampleTimeMs = 30000; // 30 seconds
+// Server details
+const char* server = "192.168.73.105";  // Replace with your server IP
+const int port = 3000;                   // Replace with your server port
 
 void setup() {
   Serial.begin(9600);  // Communication with ESP8266
